@@ -19,7 +19,7 @@ public class Teste {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String sourceDir = "c:/Users/wsantos/Documents/doutorado/cultural_repair/theory/alignments.pl";
+		String sourceDir = "d:/Usuarios/010447310388/Documentos/Prolog/alignment_revision.pl";
 		Query.hasSolution("use_module(library(jpl))");
 		Term swi = Query.oneSolution("current_prolog_flag(version_data,Swi)").get("Swi");
 		System.out.println("swipl.version = " + swi.arg(1) + "." + swi.arg(2) + "." + swi.arg(3));

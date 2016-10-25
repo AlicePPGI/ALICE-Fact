@@ -16,8 +16,8 @@ import theory.TheoryController;
  */
 public class Revisor {
 	
-	private String sourceDir = "c:/Users/wsantos/Documents/doutorado/cultural_repair/theory";
-	private String theoryFileName = "alignments.pl";
+	private String sourceDir = "d:/Usuarios/010447310388/Documents/Prolog";
+	private String theoryFileName = "alignment_revision.pl";
 	private String examplesFileName = "examples.dat";
 	private String theoryBaseFileName = "alignments_";
 	TheoryController theoryController = TheoryController.getInstance();
@@ -68,4 +68,5 @@ public class Revisor {
 			}
 		}
 	}
+
 }

@@ -69,7 +69,7 @@ public class TheoryController {
 		} else {
 			if (action.equals(DELETE_FACT)) {
 				for (String oldClause:oldTheory.getClauses()) {
-					if (!oldClause.equals(fact)) {
+					if (!oldClause.replaceAll(" ", "").equals(fact.replaceAll(" ", ""))) {
 						theory.addClause(oldClause);
 					}
 				}
@@ -121,7 +121,7 @@ public class TheoryController {
 	}
 	
 	public void generateMisclassifiedExamples(Examples examples, Theory theory) throws Exception{
-		theory.getMisclassifiedExamples().clear();
+		theory.setMisclassifiedExamples(new ArrayList<String>());
 		for (String example:examples.getPositiveExamples()) {
 			if (!Query.hasSolution(example)) {
 				theory.getMisclassifiedExamples().add("+"+example);
