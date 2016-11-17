@@ -3,6 +3,7 @@
  */
 package revision;
 
+import java.io.File;
 import java.util.List;
 
 import examples.ExampleController;
@@ -16,12 +17,23 @@ import theory.TheoryController;
  */
 public class Revisor {
 	
-	private String sourceDir = "d:/Usuarios/010447310388/Documents/Prolog";
-	private String theoryFileName = "alignment_revision.pl";
-	private String examplesFileName = "examples.dat";
-	private String theoryBaseFileName = "alignments_";
+	private String sourceDir = "";
+	private String theoryFileName = "";
+	private String examplesFileName = "";
+	private String newTheoryFileName = "";
+	private String classFileName = "";
+	private String temporaryFileName = "alignment_";
 	TheoryController theoryController = TheoryController.getInstance();
 	ExampleController exampleController = ExampleController.getInstance();
+
+	public Revisor(String sourceDir, String theoryFileName, String examplesFileName, String classFileName) {
+		this.sourceDir = sourceDir;
+		this.theoryFileName = theoryFileName;
+		this.examplesFileName = examplesFileName;
+		this.classFileName = classFileName;
+		String[] fileName = theoryFileName.split("\\.");
+		this.newTheoryFileName = fileName[0] +"_new." + fileName[1]; 
+	}
 
 	public void execute() throws Exception{
 		String name = this.theoryFileName;
@@ -43,7 +55,7 @@ public class Revisor {
 				MEIndex++;
 				String action = list.get(0);
 				String fact = list.get(1);
-				theoryFileName = this.sourceDir + "/" + this.theoryBaseFileName + index + ".pl";
+				theoryFileName = this.sourceDir + "/" + this.temporaryFileName + index + ".pl";
 				index++;
 				Theory t = this.theoryController.createTheory(theory, fact, action, theoryFileName);
 				this.theoryController.addTheory(t);
@@ -65,6 +77,19 @@ public class Revisor {
 					tryAgain = false;
 				}
 				loop = MEIndex < faults.size();
+			}
+		}
+		Theory finalTheory = this.theoryController.getBestTheory();
+		if(finalTheory != null) {
+			String originalName = finalTheory.getFileName();
+			this.theoryController.saveTheory(theory, this.sourceDir + "/" + this.newTheoryFileName);
+			finalTheory.setFileName(originalName);
+		}
+		
+		for(int i = 0; i < this.theoryController.getTheories().size(); i++) {
+			if(!this.theoryController.getTheories().get(i).getFileName().contains(this.theoryFileName)){
+				File file = new File(this.theoryController.getTheories().get(i).getFileName());
+				file.delete();
 			}
 		}
 	}
