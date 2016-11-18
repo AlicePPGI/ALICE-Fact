@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.jpl7.Query;
 
+import examples.Example;
+
 /**
  * @author wsantos
  *
@@ -19,7 +21,7 @@ public class Theory {
 	private Double accuracy = null;
 	private String fileName = null;
 	private Boolean loaded = null;
-	private List<String> misclassifiedExamples = new ArrayList<String>();
+	private List<Example> misclassifiedExamples = new ArrayList<Example>();
 	
 	public List<String> getClauses() {
 		return clauses;
@@ -67,11 +69,11 @@ public class Theory {
 		}
 		return this.loaded;
 	}
-	public List<String> getMisclassifiedExamples() {
-		return misclassifiedExamples;
+	public List<Example> getMisclassifiedExamples() {
+		return this.misclassifiedExamples;
 	}
 
-	public void setMisclassifiedExamples(List<String> misclassifiedExamples) {
+	public void setMisclassifiedExamples(List<Example> misclassifiedExamples) {
 		this.misclassifiedExamples = misclassifiedExamples;
 	}
 

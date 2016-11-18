@@ -13,16 +13,15 @@ import java.util.List;
 
 import org.jpl7.Query;
 
-import examples.Examples;
+import examples.Example;
+import examples.SetOfExamples;
+import examples.TypeOfExample;
 
 /**
  * @author wsantos
  *
  */
 public class TheoryController {
-
-	public static final String ADD_FACT = "ADD";
-	public static final String DELETE_FACT = "DELETE";
 
 	private static final TheoryController instance = new TheoryController();
 	
@@ -58,31 +57,32 @@ public class TheoryController {
 		return theory;
 	}
 
-	public Theory createTheory(Theory oldTheory, String fact, String action, String theoryFileName) throws Exception{
+	public Theory createTheory(Theory oldTheory, Example example, String revision, String theoryFileName) throws Exception{
 		Theory theory = new Theory();
-		if (action.equals(ADD_FACT)) {
-			System.out.println("Adding the fact: " + fact);
+		if (example.getTypeOfExample().equals(TypeOfExample.POSITIVE)) {
+			System.out.println("Adding the revision: " + revision);
 			theory.getClauses().addAll(oldTheory.getClauses());
-			theory.addClause(fact);
+			theory.addClause(revision);
 			theory.sortClauses();
 			this.saveTheory(theory, theoryFileName);
-			theory.loadNewClause(fact);
+			theory.loadNewClause(revision);
 		} else {
-			if (action.equals(DELETE_FACT)) {
-				System.out.println("Deleting the fact: " + fact);
+			if (example.getTypeOfExample().equals(TypeOfExample.NEGATIVE)) {
+				System.out.println("Deleting the revision: " + revision);
 				for (String oldClause:oldTheory.getClauses()) {
-					if (!oldClause.replaceAll(" ", "").equals(fact.replaceAll(" ", ""))) {
+					if (!oldClause.replaceAll(" ", "").equals(revision.replaceAll(" ", ""))) {
 						theory.addClause(oldClause);
 					}
 				}
 				this.saveTheory(theory, theoryFileName);
-				theory.unloadClause(fact);
+				theory.unloadClause(revision);
 			} else {
 				throw new RuntimeException();
 			}
 		}
 		return theory;
 	}
+
 	public void addTheory(Theory theory){
 		this.theories.add(theory);
 	}
@@ -122,21 +122,17 @@ public class TheoryController {
 		return theory.wasLoaded();
 	}
 	
-	public void generateMisclassifiedExamples(Examples examples, Theory theory) throws Exception{
-		theory.setMisclassifiedExamples(new ArrayList<String>());
-		for (String example:examples.getPositiveExamples()) {
-			if (!Query.hasSolution(example)) {
-				theory.getMisclassifiedExamples().add("+"+example);
+	public List<Example> generateMisclassifiedExamples(SetOfExamples examples, Theory theory) throws Exception{
+		theory.setMisclassifiedExamples(new ArrayList<Example>());
+		for (Example example:examples.getExamples()) {
+			if (!Query.hasSolution(example.getExample())) {
+				theory.getMisclassifiedExamples().add(example);
 			}
 		}
-		for (String example:examples.getNegativeExamples()) {
-			if (Query.hasSolution(example)) {
-				theory.getMisclassifiedExamples().add("-"+example);
-			}
-		}
+		return theory.getMisclassifiedExamples();
 	}
 
-	public void computeAccuracy(Examples examples, Theory theory){
+	public void computeAccuracy(SetOfExamples examples, Theory theory){
 		double totalNumberOfExamples = 0.00;
 		double totalNumberOfExamplesMisclassified = 0.00;
 		if (theory.hasMisclassifiedExamples() && examples.hasExamples()) {
@@ -147,19 +143,6 @@ public class TheoryController {
 			theory.setAccuracy(100.00);
 		}
 		System.out.printf("Theory's accuracy: %.2f%s%n%n", theory.getAccuracy(),"%");
-	}
-
-	public List<String> getNextFact(String fault) throws Exception{
-		List<String> strings = new ArrayList<String>();
-		if(fault.replace(" ", "").length() > 4){
-			if (fault.substring(0, 1).equals("+")){
-				strings.add(ADD_FACT);
-			} else {
-				strings.add(DELETE_FACT);
-			}
-			strings.add(fault.substring(1));
-		}
-		return strings;
 	}
 
 }

@@ -22,8 +22,8 @@ public class ExampleController {
 		return instance;
 	}
 	
-	public Examples createExamples(String fileName) throws Exception{
-		Examples examples = new Examples();
+	public SetOfExamples createExamples(String fileName) throws Exception{
+		SetOfExamples examples = new SetOfExamples();
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		String line = br.readLine();
 		int content = 0;
@@ -51,13 +51,15 @@ public class ExampleController {
 		}
 	}
 	
-	private void insertExample(Examples examples, int content, String example){
+	private void insertExample(SetOfExamples examples, int content, String example){
 		switch (content){
 			case 1:
-				examples.addPositiveExample(example);
+				Example positiveExample = new Example(example, TypeOfExample.POSITIVE, TypeOfClassification.UNKNOW);
+				examples.addExample(positiveExample);
 				break;
 			case 2:
-				examples.addNegativeExamples(example);
+				Example negativeExample = new Example(example, TypeOfExample.NEGATIVE, TypeOfClassification.UNKNOW);
+				examples.addExample(negativeExample);
 		}
 	}
 }

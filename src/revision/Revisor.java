@@ -6,8 +6,9 @@ package revision;
 import java.io.File;
 import java.util.List;
 
+import examples.Example;
 import examples.ExampleController;
-import examples.Examples;
+import examples.SetOfExamples;
 import theory.Theory;
 import theory.TheoryController;
 
@@ -36,34 +37,26 @@ public class Revisor {
 	}
 
 	public void execute() throws Exception{
-		String name = this.theoryFileName;
-		String theoryFileName = this.sourceDir + "/" + name;
-		Theory theory = this.theoryController.createTheory(theoryFileName);
-		this.theoryController.addTheory(theory);
+		Theory theory = this.createTheory();
 		int index = 1;
 		int MEIndex = 0;
 		boolean wasLoaded = this.theoryController.isLoad(theory);
 		if (wasLoaded) {
-			Examples examples = this.exampleController.createExamples(this.sourceDir+"/"+this.examplesFileName);
-			this.theoryController.generateMisclassifiedExamples(examples, theory);
+			SetOfExamples examples = this.exampleController.createExamples(this.sourceDir+"/"+this.examplesFileName);
+			List<Example> misclassifiedExamples = this.theoryController.generateMisclassifiedExamples(examples, theory);
 			this.theoryController.computeAccuracy(examples, theory);
-			List<String> faults = theory.getMisclassifiedExamples();
-			boolean loop = MEIndex < faults.size();
+			boolean loop = misclassifiedExamples.size() > 0;
 			boolean tryAgain = false;
 			while(loop){
-				List<String> list = this.theoryController.getNextFact(faults.get(MEIndex));
-				MEIndex++;
-				String action = list.get(0);
-				String fact = list.get(1);
+				Example example = misclassifiedExamples.get(0);
 				theoryFileName = this.sourceDir + "/" + this.temporaryFileName + index + ".pl";
 				index++;
-				Theory t = this.theoryController.createTheory(theory, fact, action, theoryFileName);
+				Theory t = this.theoryController.createTheory(theory, example, "", theoryFileName);
 				this.theoryController.addTheory(t);
 				wasLoaded = this.theoryController.isLoad(t);
 				if(wasLoaded){
 					this.theoryController.generateMisclassifiedExamples(examples, t);
 					this.theoryController.computeAccuracy(examples, t);
-					list.clear();
 					if (theory.getAccuracy() <= t.getAccuracy()) {
 						theory = t;
 						tryAgain = true;
@@ -71,12 +64,12 @@ public class Revisor {
 				}else{
 					throw new RuntimeException("Invalid Theory created!!!");
 				}
-				if(MEIndex == faults.size() && theory.getAccuracy() < 100.00 && tryAgain){
+				if(MEIndex == misclassifiedExamples.size() && theory.getAccuracy() < 100.00 && tryAgain){
 					MEIndex = 0;
-					faults = theory.getMisclassifiedExamples();
+					misclassifiedExamples = theory.getMisclassifiedExamples();
 					tryAgain = false;
 				}
-				loop = MEIndex < faults.size();
+				loop = MEIndex < misclassifiedExamples.size();
 			}
 		}
 		Theory finalTheory = this.theoryController.getBestTheory();
@@ -92,6 +85,14 @@ public class Revisor {
 				file.delete();
 			}
 		}
+	}
+
+	private Theory createTheory() throws Exception {
+		String name = this.theoryFileName;
+		String theoryFileName = this.sourceDir + "/" + name;
+		Theory theory = this.theoryController.createTheory(theoryFileName);
+		this.theoryController.addTheory(theory);
+		return theory;
 	}
 
 }
