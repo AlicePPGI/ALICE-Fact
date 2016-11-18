@@ -61,6 +61,7 @@ public class TheoryController {
 	public Theory createTheory(Theory oldTheory, String fact, String action, String theoryFileName) throws Exception{
 		Theory theory = new Theory();
 		if (action.equals(ADD_FACT)) {
+			System.out.println("Adding the fact: " + fact);
 			theory.getClauses().addAll(oldTheory.getClauses());
 			theory.addClause(fact);
 			theory.sortClauses();
@@ -68,6 +69,7 @@ public class TheoryController {
 			theory.loadNewClause(fact);
 		} else {
 			if (action.equals(DELETE_FACT)) {
+				System.out.println("Deleting the fact: " + fact);
 				for (String oldClause:oldTheory.getClauses()) {
 					if (!oldClause.replaceAll(" ", "").equals(fact.replaceAll(" ", ""))) {
 						theory.addClause(oldClause);
@@ -144,6 +146,7 @@ public class TheoryController {
 		} else {
 			theory.setAccuracy(100.00);
 		}
+		System.out.printf("Theory's accuracy: %.2f%s%n%n", theory.getAccuracy(),"%");
 	}
 
 	public List<String> getNextFact(String fault) throws Exception{

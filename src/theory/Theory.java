@@ -92,6 +92,7 @@ public class Theory {
 	}
 	
 	public void load() {
+		System.out.println("Loading the theory.");
 		String t = "consult('" + this.getFileName() + "')";
 		this.loaded = Query.hasSolution(t);
 	}
