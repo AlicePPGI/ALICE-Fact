@@ -9,6 +9,8 @@ import java.util.List;
 import examples.Example;
 import examples.ExampleController;
 import examples.SetOfExamples;
+import revisionPoint.RevisionPoint;
+import revisionPoint.RevisionPointController;
 import theory.Theory;
 import theory.TheoryController;
 
@@ -24,8 +26,9 @@ public class Revisor {
 	private String newTheoryFileName = "";
 	private String classFileName = "";
 	private String temporaryFileName = "alignment_";
-	TheoryController theoryController = TheoryController.getInstance();
-	ExampleController exampleController = ExampleController.getInstance();
+	private TheoryController theoryController = TheoryController.getInstance();
+	private ExampleController exampleController = ExampleController.getInstance();
+	private RevisionPointController revisionPointController = RevisionPointController.getInstance();
 
 	public Revisor(String sourceDir, String theoryFileName, String examplesFileName, String classFileName) {
 		this.sourceDir = sourceDir;
@@ -45,7 +48,8 @@ public class Revisor {
 			SetOfExamples examples = this.exampleController.createExamples(this.sourceDir+"/"+this.examplesFileName);
 			List<Example> misclassifiedExamples = this.theoryController.generateMisclassifiedExamples(examples, theory);
 			this.theoryController.computeAccuracy(examples, theory);
-			boolean loop = misclassifiedExamples.size() > 0;
+			List<RevisionPoint> revisionPoints = this.revisionPointController.generateRevisionPoints(theory, misclassifiedExamples);
+			boolean loop = revisionPoints.size() > 0;
 			boolean tryAgain = false;
 			while(loop){
 				Example example = misclassifiedExamples.get(0);

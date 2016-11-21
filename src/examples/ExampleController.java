@@ -6,6 +6,9 @@ package examples;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
+import predicate.Predicate;
+import predicate.PredicateController;
+
 /**
  * @author wsantos
  *
@@ -13,6 +16,8 @@ import java.io.FileReader;
 public class ExampleController {
 
 	private static final ExampleController instance = new ExampleController();
+	
+	private PredicateController predicateController = PredicateController.getInstance();
 
 	private ExampleController(){
 		
@@ -51,15 +56,19 @@ public class ExampleController {
 		}
 	}
 	
-	private void insertExample(SetOfExamples examples, int content, String example){
+	private void insertExample(SetOfExamples examples, int content, String instance){
+		Predicate predicate = this.predicateController.getPredicate(instance);
 		switch (content){
 			case 1:
-				Example positiveExample = new Example(example, TypeOfExample.POSITIVE, TypeOfClassification.UNKNOW);
+				Example positiveExample = new Example(instance, TypeOfExample.POSITIVE, TypeOfClassification.UNKNOW);
+				positiveExample.setPredicate(predicate);
 				examples.addExample(positiveExample);
 				break;
 			case 2:
-				Example negativeExample = new Example(example, TypeOfExample.NEGATIVE, TypeOfClassification.UNKNOW);
+				Example negativeExample = new Example(instance, TypeOfExample.NEGATIVE, TypeOfClassification.UNKNOW);
+				negativeExample.setPredicate(predicate);
 				examples.addExample(negativeExample);
 		}
 	}
+
 }

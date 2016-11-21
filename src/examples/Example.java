@@ -1,23 +1,26 @@
 package examples;
 
+import predicate.Predicate;
+
 public class Example {
 
-	private String example;
+	private String instance;
 	private TypeOfExample typeOfExample;
 	private TypeOfClassification typeOfClassification;
+	private Predicate predicate;
 
-	public Example(String example, TypeOfExample typeOfExample, TypeOfClassification typeOfClassification) {
-		this.example = example;
+	public Example(String instance, TypeOfExample typeOfExample, TypeOfClassification typeOfClassification) {
+		this.instance = instance;
 		this.typeOfExample = typeOfExample;
 		this.typeOfClassification = typeOfClassification;
 	}
 
-	public String getExample() {
-		return example;
+	public String getInstance() {
+		return this.instance;
 	}
 
-	public void setExample(String example) {
-		this.example = example;
+	public void setInstance(String instance) {
+		this.instance = instance;
 	}
 
 	public TypeOfExample getTypeOfExample() {
@@ -34,6 +37,14 @@ public class Example {
 
 	public void setTypeOfClassification(TypeOfClassification typeOfClassification) {
 		this.typeOfClassification = typeOfClassification;
+	}
+
+	public Predicate getPredicate() {
+		return predicate;
+	}
+
+	public void setPredicate(Predicate predicate) {
+		this.predicate = predicate;
 	}
 
 }

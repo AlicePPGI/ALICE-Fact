@@ -17,18 +17,19 @@ import examples.Example;
  */
 public class Theory {
 
-	private List<String> clauses = new ArrayList<String>();
+	private List<String> sClauses = new ArrayList<String>();
 	private Double accuracy = null;
 	private String fileName = null;
 	private Boolean loaded = null;
 	private List<Example> misclassifiedExamples = new ArrayList<Example>();
+	private List<Clause> clauses = new ArrayList<Clause>();
 	
-	public List<String> getClauses() {
-		return clauses;
+	public List<String> getSClauses() {
+		return this.sClauses;
 	}
 
-	public void setClauses(List<String> clauses) {
-		this.clauses = clauses;
+	public void setSClauses(List<String> sClauses) {
+		this.sClauses = sClauses;
 	}
 
 	public Double getAccuracy(){
@@ -39,22 +40,12 @@ public class Theory {
 		this.accuracy = accuracy;
 	}
 
-	public void addClause(String clause) {
-		this.clauses.add(clause);
+	public void addSClause(String sClause) {
+		if(sClause != null){
+			this.sClauses.add(sClause);
+		}
 	}
-	
-	public void loadNewClause(String clause) {
-/*		String assertClause = "assert("+clause.substring(0, clause.lastIndexOf("."))+")";
-		this.loaded = Query.hasSolution(assertClause); */
-		this.load();
-	}
-	
-	public void unloadClause(String clause) {
-/*		String retractClause = "retract("+clause.substring(0, clause.lastIndexOf("."))+")";
-		this.loaded = Query.hasSolution(retractClause); */
-		this.load();
-	}
-	
+		
 	public String getFileName() {
 		return fileName;
 	}
@@ -69,6 +60,7 @@ public class Theory {
 		}
 		return this.loaded;
 	}
+
 	public List<Example> getMisclassifiedExamples() {
 		return this.misclassifiedExamples;
 	}
@@ -77,13 +69,27 @@ public class Theory {
 		this.misclassifiedExamples = misclassifiedExamples;
 	}
 
+	public List<Clause> getClauses() {
+		return clauses;
+	}
+
+	public void setClauses(List<Clause> clauses) {
+		this.clauses = clauses;
+	}
+
+	public void addClause(Clause clause) {
+		if(clause != null){
+			this.clauses.add(clause);
+		}
+	}
+
 	public Double computeAccuracy(double totalNumberOfExamples, double totalNumberOfExamplesMisclassified){
 		this.accuracy = ((totalNumberOfExamples - totalNumberOfExamplesMisclassified) / totalNumberOfExamples) * 100.00;
 		return this.accuracy;
 	}
 
-	public void sortClauses(){
-		Collections.sort(this.clauses);
+	public void sortSClauses(){
+		Collections.sort(this.sClauses);
 	}
 	
 	public boolean hasMisclassifiedExamples(){
@@ -92,7 +98,19 @@ public class Theory {
 		}
 		return false;
 	}
+
+	public void loadNewClause(String clause) {
+/*		String assertClause = "assert("+clause.substring(0, clause.lastIndexOf("."))+")";
+		this.loaded = Query.hasSolution(assertClause); */
+		this.load();
+	}
 	
+	public void unloadClause(String clause) {
+/*		String retractClause = "retract("+clause.substring(0, clause.lastIndexOf("."))+")";
+		this.loaded = Query.hasSolution(retractClause); */
+		this.load();
+	}
+
 	public void load() {
 		System.out.println("Loading the theory.");
 		String t = "consult('" + this.getFileName() + "')";

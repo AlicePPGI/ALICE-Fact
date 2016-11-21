@@ -7,7 +7,19 @@ import theory.Theory;
 
 public class RevisionPointController {
 
-	public List<RevisionPoint> generateRevisionPoints(Theory theory, Example example) {
+	private static final RevisionPointController instance = new RevisionPointController();
+	
+	private RevisionPointController() {
+		
+	}
+	
+	public static final RevisionPointController getInstance() {
+		return instance;
+	}
+	public List<RevisionPoint> generateRevisionPoints(Theory theory, List<Example> misclassifiedExamples) {
+		for(Example example:misclassifiedExamples){
+			String predicateName = example.getPredicate().getName();
+		}
 		return null;
 	}
 
