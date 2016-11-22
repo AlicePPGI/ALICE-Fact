@@ -39,4 +39,30 @@ public class Clause {
 		}
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null || !(obj instanceof Clause)){
+			return false;
+		}
+		Clause clause = (Clause) obj;
+		if(!this.head.equals(clause.getHead())){
+			return false;
+		}
+		boolean result = false;
+		for(Antecedent antecedent:this.antecedents){
+			for(Antecedent antec:clause.getAntecedents()){
+				if(antecedent.equals(antec)){
+					result = true;
+					break;
+				}
+			}
+			if(!result){
+				return result;
+			}else{
+				result = false;
+			}
+		}
+		return true;
+	}
+
 }

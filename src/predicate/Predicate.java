@@ -24,12 +24,28 @@ public class Predicate {
 		this.arguments = arguments;
 	}
 
+	public Integer getAridity() {
+		return this.arguments.size();
+	}
+	
 	public Boolean addArgument(Integer index, Argument argument) {
 		if(this.arguments.containsKey(index) || (this.arguments.containsValue(argument) && !argument.getType().equals(ArgumentType.NUMBER))){
 			return Boolean.FALSE;
 		}
 		this.arguments.put(index, argument);
 		return Boolean.TRUE;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null || !(obj instanceof Predicate)){
+			return false;
+		}
+		Predicate predicate = (Predicate) obj;
+		if(this.getAridity() != predicate.getAridity()){
+			return false;
+		}
+		return this.name.replaceAll(" ", "").equals(predicate.getName().replaceAll(" ", ""));
 	}
 
 }

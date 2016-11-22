@@ -48,7 +48,7 @@ public class Revisor {
 			SetOfExamples examples = this.exampleController.createExamples(this.sourceDir+"/"+this.examplesFileName);
 			List<Example> misclassifiedExamples = this.theoryController.generateMisclassifiedExamples(examples, theory);
 			this.theoryController.computeAccuracy(examples, theory);
-			List<RevisionPoint> revisionPoints = this.revisionPointController.generateRevisionPoints(theory, misclassifiedExamples);
+			List<RevisionPoint> revisionPoints = this.revisionPointController.generateRevisionPoints(theory, misclassifiedExamples.get(0));
 			boolean loop = revisionPoints.size() > 0;
 			boolean tryAgain = false;
 			while(loop){

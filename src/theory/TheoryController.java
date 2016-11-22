@@ -19,6 +19,7 @@ import examples.TypeOfClassification;
 import examples.TypeOfExample;
 import predicate.Predicate;
 import predicate.PredicateController;
+import revisionPoint.RevisionPointController;
 
 /**
  * @author wsantos
@@ -29,6 +30,7 @@ public class TheoryController {
 	private static final TheoryController instance = new TheoryController();
 
 	private PredicateController predicateController = PredicateController.getInstance();
+	private RevisionPointController revisionPointController = RevisionPointController.getInstance();
 	private List<Theory> theories = new ArrayList<Theory>();
 	
 	private TheoryController(){
@@ -218,6 +220,7 @@ public class TheoryController {
 				|| (example.getTypeOfExample().equals(TypeOfExample.NEGATIVE) && result)){
 				example.setTypeOfClassification(TypeOfClassification.MISCLASSIFIED);
 				theory.getMisclassifiedExamples().add(example);
+				this.revisionPointController.generateRevisionPoints(theory, example);
 			}else{
 				example.setTypeOfClassification(TypeOfClassification.CORRECTLY_CLASSIFIED);
 			}
