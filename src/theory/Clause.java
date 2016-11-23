@@ -6,7 +6,7 @@ import java.util.List;
 public class Clause {
 
 	private Head head;
-	private List<Antecedent> antecedents = new ArrayList<Antecedent>();
+	private List<Clause> antecedents = new ArrayList<Clause>();
 	private ClauseType type;
 
 	public Head getHead() {
@@ -17,11 +17,11 @@ public class Clause {
 		this.head = head;
 	}
 
-	public List<Antecedent> getAntecedents() {
+	public List<Clause> getAntecedents() {
 		return antecedents;
 	}
 
-	public void setAntecedents(List<Antecedent> antecedents) {
+	public void setAntecedents(List<Clause> antecedents) {
 		this.antecedents = antecedents;
 	}
 
@@ -33,7 +33,7 @@ public class Clause {
 		this.type = type;
 	}
 
-	public void addAntecedent(Antecedent antecedent){
+	public void addAntecedent(Clause antecedent){
 		if(antecedent != null){
 			this.antecedents.add(antecedent);
 		}
@@ -49,9 +49,9 @@ public class Clause {
 			return false;
 		}
 		boolean result = false;
-		for(Antecedent antecedent:this.antecedents){
-			for(Antecedent antec:clause.getAntecedents()){
-				if(antecedent.equals(antec)){
+		for(Clause antecedent:this.antecedents){
+			for(Clause antec:clause.getAntecedents()){
+				if(antecedent.getHead().equals(antec.getHead())){
 					result = true;
 					break;
 				}

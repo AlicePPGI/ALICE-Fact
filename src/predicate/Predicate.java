@@ -45,6 +45,17 @@ public class Predicate {
 		if(this.getAridity() != predicate.getAridity()){
 			return false;
 		}
+		boolean achou = false;
+		for(int i=1;i<=this.getAridity();i++){
+			Argument argument = this.arguments.get(Integer.valueOf(i));
+			if(predicate.getArguments().containsValue(argument)){
+				achou = true;
+				break;
+			}
+		}
+		if(!achou){
+			return false;
+		}
 		return this.name.replaceAll(" ", "").equals(predicate.getName().replaceAll(" ", ""));
 	}
 

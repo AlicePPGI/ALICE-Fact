@@ -1,5 +1,8 @@
 package predicate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PredicateController {
 
 	private static final PredicateController instance = new PredicateController();
@@ -34,6 +37,53 @@ public class PredicateController {
 			index++;
 		}
 		return p;
+	}
+
+	public List<String> getPredicates(String clause){
+		List<String> predicates = new ArrayList<String>();
+		String[] parts = clause.split(":-");
+		predicates.add(parts[0].replaceAll(" ", ""));
+		char[] characters = parts[1].replaceAll(" ", "").toCharArray();
+		StringBuffer sb = new StringBuffer();
+		boolean isOpenedParenthesis = false;
+		boolean hasComma = false;
+		boolean isTheEndOfTheAntecedent = false;
+		for(char c:characters){
+			switch (c){
+				case '(':
+					hasComma = false;
+					isOpenedParenthesis = true;
+					isTheEndOfTheAntecedent = false;
+					sb.append(c);
+					break;
+				case ')':
+					hasComma = false;
+					isOpenedParenthesis = false;
+					isTheEndOfTheAntecedent = true;
+					sb.append(c);
+					break;
+				case ',':
+					if(hasComma){
+						isTheEndOfTheAntecedent = true;
+					}else{
+						if(isOpenedParenthesis){
+							sb.append(c);
+						}else{
+							isOpenedParenthesis = false;
+							hasComma = true;
+						}
+					}
+					break;
+				default:
+					sb.append(c);
+			}
+			if(isTheEndOfTheAntecedent){
+				predicates.add(sb.toString());
+				isTheEndOfTheAntecedent = false;
+				sb.setLength(0);
+			}
+		}
+		return predicates;
 	}
 
 	private ArgumentType getArgumentType(String argument) {

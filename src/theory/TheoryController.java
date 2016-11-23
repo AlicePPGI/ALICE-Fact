@@ -56,7 +56,7 @@ public class TheoryController {
 		String line = br.readLine();
 		while (line != null) {
 			theory.addSClause(line);
-			Clause clause = this.createClause(line);
+			Clause clause = this.createClause(line, theory);
 			theory.addClause(clause);
 			line = br.readLine();
 		}
@@ -65,80 +65,76 @@ public class TheoryController {
 		return theory;
 	}
 
-	private Clause createClause(String line) {
-		Clause clause = new Clause();
+	private Clause createClause(String line, Theory theory) {
+		Clause main = null;
 		if(!line.contains(":-")){
 			Predicate predicate = this.predicateController.getPredicate(line);
-			Head head = new Head();
-			head.setPredicate(predicate);
-			clause.setHead(head);
-			clause.setType(ClauseType.FACT);
+			main = this.findClause(predicate, theory);
+			if(main ==  null){
+				main = new Clause();
+				main.setType(ClauseType.FACT);
+			}
+			if(ClauseType.RULE.equals(main.getType())){
+				main = new Clause();
+				Head head = new Head();
+				head.setPredicate(predicate);
+				main.setHead(head);
+			}else{
+				if(main.getHead() == null){
+					Head head = new Head();
+					head.setPredicate(predicate);
+					main.setHead(head);					
+				}
+				if(main.getType() == null){
+					main.setType(ClauseType.FACT);
+				}
+			}
 		}else{
-			List<String> predicates = this.getPredicates(line);
+			List<String> predicates = this.predicateController.getPredicates(line);
 			boolean isHead = true;
 			for(String predicate:predicates){
 				Predicate p = this.predicateController.getPredicate(predicate);
-				clause.setType(ClauseType.RULE);
-				if(isHead){
-					Head head = new Head();
-					head.setPredicate(p);
-					clause.setHead(head);
-					isHead = false;
+				Clause c = this.findClause(p, theory);
+				if(c == null || ClauseType.FACT.equals(c.getType())){
+					if(isHead){
+						main = new Clause();
+						Head head = new Head();
+						head.setPredicate(p);
+						main.setHead(head);
+						isHead = false;
+					}else{
+						Clause antecedent = new Clause();
+						Head head = new Head();
+						head.setPredicate(p);
+						antecedent.setHead(head);
+						main.addAntecedent(antecedent);
+						if(main.getType() == null){
+							main.setType(ClauseType.RULE);
+						}
+					}
 				}else{
-					Antecedent antecedent = new Antecedent();
-					antecedent.setPredicate(p);
-					clause.addAntecedent(antecedent);
+					if(isHead){
+						main = c;
+						isHead = false;
+					}else{
+						if(!main.getAntecedents().contains(c)){
+							main.addAntecedent(c);
+						}
+					}
 				}
 			}
 		}
-		return clause;
+		
+		return main;
 	}
 
-	private List<String> getPredicates(String clause){
-		List<String> predicates = new ArrayList<String>();
-		String[] parts = clause.split(":-");
-		predicates.add(parts[0].replaceAll(" ", ""));
-		char[] characters = parts[1].replaceAll(" ", "").toCharArray();
-		StringBuffer sb = new StringBuffer();
-		boolean isOpenedParenthesis = false;
-		boolean hasComma = false;
-		boolean isTheEndOfTheAntecedent = false;
-		for(char c:characters){
-			switch (c){
-				case '(':
-					hasComma = false;
-					isOpenedParenthesis = true;
-					isTheEndOfTheAntecedent = false;
-					sb.append(c);
-					break;
-				case ')':
-					hasComma = false;
-					isOpenedParenthesis = false;
-					isTheEndOfTheAntecedent = true;
-					sb.append(c);
-					break;
-				case ',':
-					if(hasComma){
-						isTheEndOfTheAntecedent = true;
-					}else{
-						if(isOpenedParenthesis){
-							sb.append(c);
-						}else{
-							isOpenedParenthesis = false;
-							hasComma = true;
-						}
-					}
-					break;
-				default:
-					sb.append(c);
-			}
-			if(isTheEndOfTheAntecedent){
-				predicates.add(sb.toString());
-				isTheEndOfTheAntecedent = false;
-				sb.setLength(0);
+	private Clause findClause(Predicate predicate, Theory theory) {
+		for(Clause clause:theory.getClauses()){
+			if(clause.getHead().getPredicate().equals(predicate)){
+				return clause;
 			}
 		}
-		return predicates;
+		return null;
 	}
 
 	public Theory createTheory(Theory oldTheory, Example example, String revision, String theoryFileName) throws Exception{
