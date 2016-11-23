@@ -36,6 +36,42 @@ public class Predicate {
 		return Boolean.TRUE;
 	}
 
+	public Boolean hasAtom() {
+		Boolean achou = Boolean.FALSE;
+		for(int i = 1; i<=this.arguments.size();i++){
+			Argument argument = this.arguments.get(Integer.valueOf(i));
+			if(argument.isAtom()){
+				achou = Boolean.TRUE;
+				break;
+			}
+		}
+		return achou;
+	}
+
+	public Boolean hasVariable() {
+		Boolean achou = Boolean.FALSE;
+		for(int i = 1; i<=this.arguments.size();i++){
+			Argument argument = this.arguments.get(Integer.valueOf(i));
+			if(argument.isVariable()){
+				achou = Boolean.TRUE;
+				break;
+			}
+		}
+		return achou;
+	}
+
+	public Boolean hasNumber() {
+		Boolean achou = Boolean.FALSE;
+		for(int i = 1; i<=this.arguments.size();i++){
+			Argument argument = this.arguments.get(Integer.valueOf(i));
+			if(argument.isNumber()){
+				achou = Boolean.TRUE;
+				break;
+			}
+		}
+		return achou;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if(obj == null || !(obj instanceof Predicate)){

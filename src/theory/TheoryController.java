@@ -56,7 +56,7 @@ public class TheoryController {
 		String line = br.readLine();
 		while (line != null) {
 			theory.addSClause(line);
-			Clause clause = this.createClause(line, theory);
+			Clause clause = this.createClause(line.replaceAll(" ", ""), theory);
 			theory.addClause(clause);
 			line = br.readLine();
 		}
@@ -66,75 +66,46 @@ public class TheoryController {
 	}
 
 	private Clause createClause(String line, Theory theory) {
-		Clause main = null;
+		Clause main = new Clause();
 		if(!line.contains(":-")){
 			Predicate predicate = this.predicateController.getPredicate(line);
-			main = this.findClause(predicate, theory);
-			if(main ==  null){
-				main = new Clause();
-				main.setType(ClauseType.FACT);
-			}
-			if(ClauseType.RULE.equals(main.getType())){
-				main = new Clause();
+			if(!predicate.hasAtom() && !predicate.hasNumber() && predicate.hasVariable()){
+				main.setType(ClauseType.RULE);
 				Head head = new Head();
 				head.setPredicate(predicate);
 				main.setHead(head);
 			}else{
-				if(main.getHead() == null){
-					Head head = new Head();
-					head.setPredicate(predicate);
-					main.setHead(head);					
-				}
-				if(main.getType() == null){
-					main.setType(ClauseType.FACT);
-				}
+				Head head = new Head();
+				head.setPredicate(predicate);
+				main.setHead(head);					
+				main.setType(ClauseType.FACT);
 			}
 		}else{
+			main.setType(ClauseType.RULE);
 			List<String> predicates = this.predicateController.getPredicates(line);
 			boolean isHead = true;
 			for(String predicate:predicates){
 				Predicate p = this.predicateController.getPredicate(predicate);
-				Clause c = this.findClause(p, theory);
-				if(c == null || ClauseType.FACT.equals(c.getType())){
-					if(isHead){
-						main = new Clause();
-						Head head = new Head();
-						head.setPredicate(p);
-						main.setHead(head);
-						isHead = false;
-					}else{
-						Clause antecedent = new Clause();
-						Head head = new Head();
-						head.setPredicate(p);
-						antecedent.setHead(head);
-						main.addAntecedent(antecedent);
-						if(main.getType() == null){
-							main.setType(ClauseType.RULE);
-						}
-					}
+				if(isHead){
+					Head head = new Head();
+					head.setPredicate(p);
+					main.setHead(head);
+					isHead = false;
 				}else{
-					if(isHead){
-						main = c;
-						isHead = false;
+					Clause antecedent = new Clause();
+					if((p.hasAtom() || p.hasNumber()) && !p.hasVariable()){
+						antecedent.setType(ClauseType.FACT);
 					}else{
-						if(!main.getAntecedents().contains(c)){
-							main.addAntecedent(c);
-						}
+						antecedent.setType(ClauseType.RULE);
 					}
+					Head head = new Head();
+					head.setPredicate(p);
+					antecedent.setHead(head);
+					main.addAntecedent(antecedent);
 				}
 			}
 		}
-		
 		return main;
-	}
-
-	private Clause findClause(Predicate predicate, Theory theory) {
-		for(Clause clause:theory.getClauses()){
-			if(clause.getHead().getPredicate().equals(predicate)){
-				return clause;
-			}
-		}
-		return null;
 	}
 
 	public Theory createTheory(Theory oldTheory, Example example, String revision, String theoryFileName) throws Exception{

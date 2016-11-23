@@ -21,4 +21,25 @@ public class Argument {
 		this.type = type;
 	}
 
+	public Boolean isAtom() {
+		if(this.type != null && this.type.equals(ArgumentType.ATOM)){
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+	
+	public Boolean isVariable() {
+		if(this.type != null && this.type.equals(ArgumentType.VARIABLE)){
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+
+	public Boolean isNumber() {
+		if(this.type != null && this.type.equals(ArgumentType.NUMBER)){
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
+	}
+
 }

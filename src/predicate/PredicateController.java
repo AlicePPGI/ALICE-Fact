@@ -45,32 +45,28 @@ public class PredicateController {
 		predicates.add(parts[0].replaceAll(" ", ""));
 		char[] characters = parts[1].replaceAll(" ", "").toCharArray();
 		StringBuffer sb = new StringBuffer();
-		boolean isOpenedParenthesis = false;
-		boolean hasComma = false;
 		boolean isTheEndOfTheAntecedent = false;
+		int numberOfParenthesis = 0;
 		for(char c:characters){
 			switch (c){
 				case '(':
-					hasComma = false;
-					isOpenedParenthesis = true;
 					isTheEndOfTheAntecedent = false;
 					sb.append(c);
+					numberOfParenthesis++;
 					break;
 				case ')':
-					hasComma = false;
-					isOpenedParenthesis = false;
-					isTheEndOfTheAntecedent = true;
 					sb.append(c);
+					numberOfParenthesis--;
+					if(numberOfParenthesis == 0){
+						isTheEndOfTheAntecedent = true;
+					}
 					break;
 				case ',':
-					if(hasComma){
-						isTheEndOfTheAntecedent = true;
+					if(numberOfParenthesis > 0){
+						sb.append(c);
 					}else{
-						if(isOpenedParenthesis){
-							sb.append(c);
-						}else{
-							isOpenedParenthesis = false;
-							hasComma = true;
+						if(sb.length()>0){
+							isTheEndOfTheAntecedent = true;
 						}
 					}
 					break;
@@ -82,6 +78,10 @@ public class PredicateController {
 				isTheEndOfTheAntecedent = false;
 				sb.setLength(0);
 			}
+		}
+		if(sb.length() > 0 && !sb.toString().equals(".")){
+			predicates.add(sb.toString());
+			sb.setLength(0);
 		}
 		return predicates;
 	}
