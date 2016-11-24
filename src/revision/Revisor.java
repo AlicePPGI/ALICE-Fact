@@ -9,8 +9,8 @@ import java.util.List;
 import examples.Example;
 import examples.ExampleController;
 import examples.SetOfExamples;
-import revisionPoint.RevisionPoint;
-import revisionPoint.RevisionPointController;
+import solutionsSpace.SolutionsSpace;
+import solutionsSpace.SolutionsSpaceController;
 import theory.Theory;
 import theory.TheoryController;
 
@@ -24,23 +24,26 @@ public class Revisor {
 	private String theoryFileName = "";
 	private String examplesFileName = "";
 	private String newTheoryFileName = "";
-	private String classFileName = "";
+	private String classesFileName = "";
+	private String alignmentPredicateFileName = "";
 	private String temporaryFileName = "alignment_";
 	private TheoryController theoryController = TheoryController.getInstance();
 	private ExampleController exampleController = ExampleController.getInstance();
-	private RevisionPointController revisionPointController = RevisionPointController.getInstance();
+	private SolutionsSpaceController solutionsSpaceController = SolutionsSpaceController.getInstance();
 
-	public Revisor(String sourceDir, String theoryFileName, String examplesFileName, String classFileName) {
+	public Revisor(String sourceDir, String theoryFileName, String examplesFileName, String classesFileName, String alignmentPredicateFileName) {
 		this.sourceDir = sourceDir;
 		this.theoryFileName = theoryFileName;
 		this.examplesFileName = examplesFileName;
-		this.classFileName = classFileName;
+		this.classesFileName = classesFileName;
+		this.alignmentPredicateFileName = alignmentPredicateFileName;
 		String[] fileName = theoryFileName.split("\\.");
 		this.newTheoryFileName = fileName[0] +"_new." + fileName[1]; 
 	}
 
 	public void execute() throws Exception{
-		Theory theory = this.createTheory();
+		SolutionsSpace solutionsSpace = this.solutionsSpaceController.getSolutionsSpace(this.classesFileName, this.alignmentPredicateFileName);
+		Theory theory = this.createTheory(solutionsSpace.getDynamicPredicates());
 		int index = 1;
 		int MEIndex = 0;
 		boolean wasLoaded = this.theoryController.isLoad(theory);
@@ -48,8 +51,7 @@ public class Revisor {
 			SetOfExamples examples = this.exampleController.createExamples(this.sourceDir+"/"+this.examplesFileName);
 			List<Example> misclassifiedExamples = this.theoryController.generateMisclassifiedExamples(examples, theory);
 			this.theoryController.computeAccuracy(examples, theory);
-			List<RevisionPoint> revisionPoints = this.revisionPointController.generateRevisionPoints(theory, misclassifiedExamples.get(0));
-			boolean loop = revisionPoints.size() > 0;
+			boolean loop = misclassifiedExamples.size() > 0;
 			boolean tryAgain = false;
 			while(loop){
 				Example example = misclassifiedExamples.get(0);
@@ -91,10 +93,9 @@ public class Revisor {
 		}
 	}
 
-	private Theory createTheory() throws Exception {
-		String name = this.theoryFileName;
-		String theoryFileName = this.sourceDir + "/" + name;
-		Theory theory = this.theoryController.createTheory(theoryFileName);
+	private Theory createTheory(List<String> dynamicPredicates) throws Exception {
+		String theoryFileName = this.sourceDir + "/" + this.theoryFileName;
+		Theory theory = this.theoryController.createTheory(theoryFileName, dynamicPredicates);
 		this.theoryController.addTheory(theory);
 		return theory;
 	}

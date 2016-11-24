@@ -49,9 +49,12 @@ public class TheoryController {
 		this.theories = theories;
 	}
 
-	public Theory createTheory(String fileName) throws Exception{
+	public Theory createTheory(String fileName, List<String> dynamicPredicates) throws Exception{
 		Theory theory = new Theory();
 		theory.setFileName(fileName);
+		for(String dynamicPredicate:dynamicPredicates){
+			theory.addSClause(dynamicPredicate);
+		}
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		String line = br.readLine();
 		while (line != null) {
