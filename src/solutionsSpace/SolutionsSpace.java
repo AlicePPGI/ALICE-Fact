@@ -107,7 +107,9 @@ public class SolutionsSpace {
 		}
 		for(String clazz:classes){
 			for(String clzz:classes){
-				pairOfClasses.add(clazz+","+clzz);
+				if(!clazz.equals(clzz)){
+					pairOfClasses.add(clazz+","+clzz);
+				}
 			}
 		}
 		return pairOfClasses;

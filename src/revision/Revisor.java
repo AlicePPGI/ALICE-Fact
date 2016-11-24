@@ -42,7 +42,7 @@ public class Revisor {
 	}
 
 	public void execute() throws Exception{
-		SolutionsSpace solutionsSpace = this.solutionsSpaceController.getSolutionsSpace(this.classesFileName, this.alignmentPredicateFileName);
+		SolutionsSpace solutionsSpace = this.solutionsSpaceController.getSolutionsSpace(this.sourceDir+"/"+this.classesFileName, this.sourceDir+"/"+this.alignmentPredicateFileName);
 		Theory theory = this.createTheory(solutionsSpace.getDynamicPredicates());
 		int index = 1;
 		int MEIndex = 0;

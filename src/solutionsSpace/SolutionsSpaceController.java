@@ -24,7 +24,9 @@ public class SolutionsSpaceController {
 			|| alignmentPredicateFileName.equals("")){
 			throw new RuntimeException("Invalid file name. Solutions space can't be built.");
 		}
-		this.solutionsSpace.loadSolutions(classesFileName, alignmentPredicateFileName);
+		SolutionsSpace solutionsSpace = new SolutionsSpace();
+		solutionsSpace.loadSolutions(classesFileName, alignmentPredicateFileName);
+		this.solutionsSpace = solutionsSpace;
 		return this.solutionsSpace;
 	}
 
