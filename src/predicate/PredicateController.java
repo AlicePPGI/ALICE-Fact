@@ -21,7 +21,7 @@ public class PredicateController {
 		}
 		String[] parts = predicate.split("\\(");
 		Predicate p = new Predicate();
-		p.setName(parts[0]);
+		p.setFunctor(parts[0]);
 		String[] args = parts[1].split("\\)");
 		String[] arguments = args[0].split(",");
 		Integer index =1;

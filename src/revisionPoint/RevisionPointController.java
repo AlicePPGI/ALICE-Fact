@@ -33,7 +33,7 @@ public class RevisionPointController {
 	private List<Clause> identifyClausesWithFailures(Theory theory, Example misclassifiedExample) {
 		List<Clause> clauses = new ArrayList<Clause>();
 		for(Clause clause:theory.getClauses()){
-			if(clause.getHead().getPredicate().getName().replaceAll(" ", "").equals(misclassifiedExample.getPredicate().getName().replaceAll(" ", ""))){
+			if(clause.getHead().getPredicate().getFunctor().replaceAll(" ", "").equals(misclassifiedExample.getPredicate().getFunctor().replaceAll(" ", ""))){
 				clauses.add(clause);
 			}
 		}

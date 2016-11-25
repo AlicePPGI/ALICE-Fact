@@ -15,6 +15,7 @@ public class AddFact {
 	}
 	
 	public Boolean execute(String solution) {
+		System.out.println("Adding clause: "+solution);
 		String assertSolution = "asserta("+solution+")";
 		return Query.hasSolution(assertSolution); 
 	}

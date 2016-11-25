@@ -15,6 +15,7 @@ public class DeleteFact {
 	}
 	
 	public Boolean execute(String clause) {
+		System.out.println("Deleting clause: "+clause);
 		String retractClause = "retract("+clause+")";
 		return Query.hasSolution(retractClause); 
 	}

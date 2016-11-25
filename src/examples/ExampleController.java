@@ -57,6 +57,10 @@ public class ExampleController {
 		return this.setOfExamples;
 	}
 
+	public SetOfExamples getSetOfExamples() {
+		return this.setOfExamples;
+	}
+
 	private int validateSession(String line){
 		if (line.contains("[positive examples]")) {
 			return 1;
@@ -86,6 +90,9 @@ public class ExampleController {
 
 	public List<Example> generateMisclassifiedExamples() throws Exception{
 		Boolean result = null;
+		if(this.misclassifiedExamples.size() > 0){
+			this.misclassifiedExamples.clear();
+		}
 		for (Example example:this.setOfExamples.getExamples()) {
 			try{
 				result = Query.hasSolution(example.getInstance());
@@ -124,6 +131,30 @@ public class ExampleController {
 				return null;
 			}
 		}
+	}
+
+	public boolean hasMisclassifiedPositiveExamples() {
+		if(this.misclassifiedExamples == null || this.misclassifiedExamples.size() == 0){
+			return false;
+		}
+		for(Example example:this.misclassifiedExamples){
+			if(example.getTypeOfExample().equals(TypeOfExample.POSITIVE)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean hasMisclassifiedNegativeExamples() {
+		if(this.misclassifiedExamples == null || this.misclassifiedExamples.size() == 0){
+			return false;
+		}
+		for(Example example:this.misclassifiedExamples){
+			if(example.getTypeOfExample().equals(TypeOfExample.NEGATIVE)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

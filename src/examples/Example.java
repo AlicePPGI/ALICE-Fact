@@ -47,4 +47,16 @@ public class Example {
 		this.predicate = predicate;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null || !(obj instanceof Example)){
+			return false;
+		}
+		Example example = (Example) obj;
+		if(this.instance == null || example.getInstance() == null){
+			return false;
+		}
+		return this.instance.equals(example.getInstance());
+	}
+
 }

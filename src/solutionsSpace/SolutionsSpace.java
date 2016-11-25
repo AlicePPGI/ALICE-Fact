@@ -72,32 +72,29 @@ public class SolutionsSpace {
 	}
 
 	public void loadSolutions(String classesFileName, String alignmentFunctorFileName) throws Exception {
-		List<String> functors = this.getAlignmentFunctorNames(alignmentFunctorFileName);
+		this.setAlignmentFunctorNames(alignmentFunctorFileName);
 		List<String> pairOfClasses = this.getPairOfClasses(classesFileName);
 		for(String functor:functors){
-			this.functors.add(functor);
 			for(String pairOfClass:pairOfClasses){
-				this.availableSolutions.add(functors+"("+pairOfClass+").");
+				this.availableSolutions.add(functor+"("+pairOfClass+")");
 			}
 		}
 	}
 
-	private List<String> getAlignmentFunctorNames(String alignmentFunctorFileName) throws Exception {
-		List<String> predicates = new ArrayList<String>();
+	private void setAlignmentFunctorNames(String alignmentFunctorFileName) throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(alignmentFunctorFileName));
 		String line = br.readLine();
 		while(line != null){
 			if(!line.equals("")){
 				this.dynamicPredicates.add(":- dynamic "+ line + "/2.");
-				predicates.add(line);
+				this.functors.add(line);
 			}
 			line = br.readLine();
 		}
 		br.close();
-		if(predicates.size() == 0){
+		if(this.functors.size() == 0){
 			throw new RuntimeException("Predicate file is empty.");
 		}
-		return predicates;
 	}
 
 	private List<String> getPairOfClasses(String classesFileName) throws Exception {

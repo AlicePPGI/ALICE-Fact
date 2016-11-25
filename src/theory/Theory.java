@@ -81,5 +81,9 @@ public class Theory {
 		String t = "consult('" + this.getFileName() + "')";
 		this.loaded = Query.hasSolution(t);
 	}
-	
+
+	public void setLoaded(Boolean loaded){
+		this.loaded = loaded;
+	}
+
 }

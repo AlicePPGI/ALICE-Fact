@@ -5,15 +5,15 @@ import java.util.Map;
 
 public class Predicate {
 
-	private String name;
+	private String functor;
 	private Map<Integer,Argument> arguments = new HashMap<Integer,Argument>();
 
-	public String getName() {
-		return name;
+	public String getFunctor() {
+		return this.functor;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setFunctor(String functor) {
+		this.functor = functor;
 	}
 
 	public Map<Integer, Argument> getArguments() {
@@ -81,18 +81,7 @@ public class Predicate {
 		if(this.getAridity() != predicate.getAridity()){
 			return false;
 		}
-		boolean achou = false;
-		for(int i=1;i<=this.getAridity();i++){
-			Argument argument = this.arguments.get(Integer.valueOf(i));
-			if(predicate.getArguments().containsValue(argument)){
-				achou = true;
-				break;
-			}
-		}
-		if(!achou){
-			return false;
-		}
-		return this.name.replaceAll(" ", "").equals(predicate.getName().replaceAll(" ", ""));
+		return this.functor.replaceAll(" ", "").equals(predicate.getFunctor().replaceAll(" ", ""));
 	}
 
 }
