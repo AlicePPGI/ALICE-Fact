@@ -10,6 +10,7 @@ public class SolutionsSpace {
 	private List<String> availableSolutions = new ArrayList<String>();
 	private List<String> usedSolutions = new ArrayList<String>();
 	private List<String> dynamicPredicates = new ArrayList<String>();
+	private List<String> functors = new ArrayList<String>();
 
 	public List<String> getAvailableSolutions() {
 		return this.availableSolutions;
@@ -33,6 +34,14 @@ public class SolutionsSpace {
 
 	public void setDynamicPredicates(List<String> dynamicPredicates) {
 		this.dynamicPredicates = dynamicPredicates;
+	}
+
+	public List<String> getFunctors() {
+		return this.functors;
+	}
+
+	public void setFunctors(List<String> functors) {
+		this.functors = functors;
 	}
 
 	public Boolean addSolution(String solution) {
@@ -62,19 +71,20 @@ public class SolutionsSpace {
 		return this.availableSolutions.get(index);
 	}
 
-	public void loadSolutions(String classesFileName, String alignmentPredicateFileName) throws Exception {
-		List<String> predicates = this.getPredicateNames(alignmentPredicateFileName);
+	public void loadSolutions(String classesFileName, String alignmentFunctorFileName) throws Exception {
+		List<String> functors = this.getAlignmentFunctorNames(alignmentFunctorFileName);
 		List<String> pairOfClasses = this.getPairOfClasses(classesFileName);
-		for(String predicate:predicates){
+		for(String functor:functors){
+			this.functors.add(functor);
 			for(String pairOfClass:pairOfClasses){
-				this.availableSolutions.add(predicate+"("+pairOfClass+")");
+				this.availableSolutions.add(functors+"("+pairOfClass+").");
 			}
 		}
 	}
 
-	private List<String> getPredicateNames(String alignmentPredicateFileName) throws Exception {
+	private List<String> getAlignmentFunctorNames(String alignmentFunctorFileName) throws Exception {
 		List<String> predicates = new ArrayList<String>();
-		BufferedReader br = new BufferedReader(new FileReader(alignmentPredicateFileName));
+		BufferedReader br = new BufferedReader(new FileReader(alignmentFunctorFileName));
 		String line = br.readLine();
 		while(line != null){
 			if(!line.equals("")){

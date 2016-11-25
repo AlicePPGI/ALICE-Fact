@@ -11,15 +11,8 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jpl7.Query;
-
-import examples.Example;
-import examples.SetOfExamples;
-import examples.TypeOfClassification;
-import examples.TypeOfExample;
 import predicate.Predicate;
 import predicate.PredicateController;
-import revisionPoint.RevisionPointController;
 
 /**
  * @author wsantos
@@ -30,7 +23,6 @@ public class TheoryController {
 	private static final TheoryController instance = new TheoryController();
 
 	private PredicateController predicateController = PredicateController.getInstance();
-	private RevisionPointController revisionPointController = RevisionPointController.getInstance();
 	private List<Theory> theories = new ArrayList<Theory>();
 	
 	private TheoryController(){
@@ -59,7 +51,7 @@ public class TheoryController {
 		String line = br.readLine();
 		while (line != null) {
 			theory.addSClause(line);
-			Clause clause = this.createClause(line.replaceAll(" ", ""), theory);
+			Clause clause = this.createClause(line.replaceAll(" ", ""));
 			theory.addClause(clause);
 			line = br.readLine();
 		}
@@ -68,7 +60,7 @@ public class TheoryController {
 		return theory;
 	}
 
-	private Clause createClause(String line, Theory theory) {
+	public Clause createClause(String line) {
 		Clause main = new Clause();
 		if(!line.contains(":-")){
 			Predicate predicate = this.predicateController.getPredicate(line);
@@ -111,7 +103,7 @@ public class TheoryController {
 		return main;
 	}
 
-	public Theory createTheory(Theory oldTheory, Example example, String revision, String theoryFileName) throws Exception{
+/*	public Theory createTheory(Theory oldTheory, Example example, String revision, String theoryFileName) throws Exception{
 		Theory theory = new Theory();
 		if (example.getTypeOfExample().equals(TypeOfExample.POSITIVE)) {
 			System.out.println("Adding the revision: " + revision);
@@ -135,7 +127,7 @@ public class TheoryController {
 			}
 		}
 		return theory;
-	}
+	} */
 
 	public void addTheory(Theory theory){
 		this.theories.add(theory);
@@ -176,39 +168,4 @@ public class TheoryController {
 		return theory.wasLoaded();
 	}
 	
-	public List<Example> generateMisclassifiedExamples(SetOfExamples examples, Theory theory) throws Exception{
-		theory.setMisclassifiedExamples(new ArrayList<Example>());
-		Boolean result = null;
-		for (Example example:examples.getExamples()) {
-			try{
-				result = Query.hasSolution(example.getInstance());
-			}catch(Exception e){
-				result = null;
-			}
-			if(result == null
-				|| (example.getTypeOfExample().equals(TypeOfExample.POSITIVE) && !result)
-				|| (example.getTypeOfExample().equals(TypeOfExample.NEGATIVE) && result)){
-				example.setTypeOfClassification(TypeOfClassification.MISCLASSIFIED);
-				theory.getMisclassifiedExamples().add(example);
-				this.revisionPointController.generateRevisionPoints(theory, example);
-			}else{
-				example.setTypeOfClassification(TypeOfClassification.CORRECTLY_CLASSIFIED);
-			}
-		}
-		return theory.getMisclassifiedExamples();
-	}
-
-	public void computeAccuracy(SetOfExamples examples, Theory theory){
-		double totalNumberOfExamples = 0.00;
-		double totalNumberOfExamplesMisclassified = 0.00;
-		if (theory.hasMisclassifiedExamples() && examples.hasExamples()) {
-			totalNumberOfExamplesMisclassified = theory.getMisclassifiedExamples().size();
-			totalNumberOfExamples = examples.getPositiveExamples().size() + examples.getNegativeExamples().size();
-	 		theory.computeAccuracy(totalNumberOfExamples, totalNumberOfExamplesMisclassified);
-		} else {
-			theory.setAccuracy(100.00);
-		}
-		System.out.printf("Theory's accuracy: %.2f%s%n%n", theory.getAccuracy(),"%");
-	}
-
 }

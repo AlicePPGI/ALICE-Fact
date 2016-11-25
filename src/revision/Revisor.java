@@ -8,7 +8,7 @@ import java.util.List;
 
 import examples.Example;
 import examples.ExampleController;
-import examples.SetOfExamples;
+import operators.OperatorsController;
 import solutionsSpace.SolutionsSpace;
 import solutionsSpace.SolutionsSpaceController;
 import theory.Theory;
@@ -25,58 +25,54 @@ public class Revisor {
 	private String examplesFileName = "";
 	private String newTheoryFileName = "";
 	private String classesFileName = "";
-	private String alignmentPredicateFileName = "";
-	private String temporaryFileName = "alignment_";
+	private String alignmentFunctorFileName = "";
 	private TheoryController theoryController = TheoryController.getInstance();
 	private ExampleController exampleController = ExampleController.getInstance();
 	private SolutionsSpaceController solutionsSpaceController = SolutionsSpaceController.getInstance();
-
+	private OperatorsController operatorsController = OperatorsController.getInstance();
 	public Revisor(String sourceDir, String theoryFileName, String examplesFileName, String classesFileName, String alignmentPredicateFileName) {
 		this.sourceDir = sourceDir;
 		this.theoryFileName = theoryFileName;
 		this.examplesFileName = examplesFileName;
 		this.classesFileName = classesFileName;
-		this.alignmentPredicateFileName = alignmentPredicateFileName;
+		this.alignmentFunctorFileName = alignmentPredicateFileName;
 		String[] fileName = theoryFileName.split("\\.");
 		this.newTheoryFileName = fileName[0] +"_new." + fileName[1]; 
 	}
 
 	public void execute() throws Exception{
-		SolutionsSpace solutionsSpace = this.solutionsSpaceController.getSolutionsSpace(this.sourceDir+"/"+this.classesFileName, this.sourceDir+"/"+this.alignmentPredicateFileName);
+		SolutionsSpace solutionsSpace = this.solutionsSpaceController.getSolutionsSpace(this.sourceDir+"/"+this.classesFileName, this.sourceDir+"/"+this.alignmentFunctorFileName);
 		Theory theory = this.createTheory(solutionsSpace.getDynamicPredicates());
-		int index = 1;
 		int MEIndex = 0;
 		boolean wasLoaded = this.theoryController.isLoad(theory);
 		if (wasLoaded) {
-			SetOfExamples examples = this.exampleController.createExamples(this.sourceDir+"/"+this.examplesFileName);
-			List<Example> misclassifiedExamples = this.theoryController.generateMisclassifiedExamples(examples, theory);
-			this.theoryController.computeAccuracy(examples, theory);
-			boolean loop = misclassifiedExamples.size() > 0;
-			boolean tryAgain = false;
+			this.exampleController.createExamples(this.examplesFileName);
+			this.exampleController.generateMisclassifiedExamples();
+			theory.setAccuracy(this.exampleController.computeAccuracy());
+			boolean loop = this.exampleController.getMisclassifiedExamples().size() > 0;
 			while(loop){
-				Example example = misclassifiedExamples.get(0);
-				theoryFileName = this.sourceDir + "/" + this.temporaryFileName + index + ".pl";
-				index++;
-				Theory t = this.theoryController.createTheory(theory, example, "", theoryFileName);
-				this.theoryController.addTheory(t);
-				wasLoaded = this.theoryController.isLoad(t);
-				if(wasLoaded){
-					this.theoryController.generateMisclassifiedExamples(examples, t);
-					this.theoryController.computeAccuracy(examples, t);
-					if (theory.getAccuracy() <= t.getAccuracy()) {
-						theory = t;
-						tryAgain = true;
+				Example example = this.exampleController.getMisclassifiedExamples().get(MEIndex);
+				Boolean wasImproved = this.operatorsController.execute(example, solutionsSpace, theory);
+				if(wasImproved){
+					theory = this.theoryController.getBestTheory();
+					wasLoaded = this.theoryController.isLoad(theory);
+					if(wasLoaded){
+						this.exampleController.generateMisclassifiedExamples();
+						MEIndex = 0;
+						theory.setAccuracy(this.exampleController.computeAccuracy());
+					}else{
+						throw new RuntimeException("Invalid Theory created!!!");
 					}
 				}else{
-					throw new RuntimeException("Invalid Theory created!!!");
+					MEIndex++;
 				}
-				if(MEIndex == misclassifiedExamples.size() && theory.getAccuracy() < 100.00 && tryAgain){
-					MEIndex = 0;
-					misclassifiedExamples = theory.getMisclassifiedExamples();
-					tryAgain = false;
+				if(MEIndex > this.exampleController.getMisclassifiedExamples().size()
+					|| this.exampleController.getMisclassifiedExamples().size() == 0){
+					loop = false;
 				}
-				loop = MEIndex < misclassifiedExamples.size();
 			}
+		}else{
+			throw new RuntimeException("Invalid initial Theory!!!");
 		}
 		Theory finalTheory = this.theoryController.getBestTheory();
 		if(finalTheory != null) {

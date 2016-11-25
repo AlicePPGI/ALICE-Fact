@@ -9,8 +9,6 @@ import java.util.List;
 
 import org.jpl7.Query;
 
-import examples.Example;
-
 /**
  * @author wsantos
  *
@@ -21,7 +19,6 @@ public class Theory {
 	private Double accuracy = null;
 	private String fileName = null;
 	private Boolean loaded = null;
-	private List<Example> misclassifiedExamples = new ArrayList<Example>();
 	private List<Clause> clauses = new ArrayList<Clause>();
 	
 	public List<String> getSClauses() {
@@ -61,14 +58,6 @@ public class Theory {
 		return this.loaded;
 	}
 
-	public List<Example> getMisclassifiedExamples() {
-		return this.misclassifiedExamples;
-	}
-
-	public void setMisclassifiedExamples(List<Example> misclassifiedExamples) {
-		this.misclassifiedExamples = misclassifiedExamples;
-	}
-
 	public List<Clause> getClauses() {
 		return clauses;
 	}
@@ -83,34 +72,10 @@ public class Theory {
 		}
 	}
 
-	public Double computeAccuracy(double totalNumberOfExamples, double totalNumberOfExamplesMisclassified){
-		this.accuracy = ((totalNumberOfExamples - totalNumberOfExamplesMisclassified) / totalNumberOfExamples) * 100.00;
-		return this.accuracy;
-	}
-
 	public void sortSClauses(){
 		Collections.sort(this.sClauses);
 	}
 	
-	public boolean hasMisclassifiedExamples(){
-		if(this.misclassifiedExamples.size() > 0){
-			return true;
-		}
-		return false;
-	}
-
-	public void loadNewClause(String clause) {
-/*		String assertClause = "assert("+clause.substring(0, clause.lastIndexOf("."))+")";
-		this.loaded = Query.hasSolution(assertClause); */
-		this.load();
-	}
-	
-	public void unloadClause(String clause) {
-/*		String retractClause = "retract("+clause.substring(0, clause.lastIndexOf("."))+")";
-		this.loaded = Query.hasSolution(retractClause); */
-		this.load();
-	}
-
 	public void load() {
 		System.out.println("Loading the theory.");
 		String t = "consult('" + this.getFileName() + "')";
