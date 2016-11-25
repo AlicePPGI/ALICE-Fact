@@ -30,7 +30,7 @@ public class OperatorsController {
 			resultPositive = this.add(solutionsSpace, theory);
 		}
 		if(this.exampleController.hasMisclassifiedNegativeExamples()){
-			resultNegative = this.add(solutionsSpace, theory);
+			resultNegative = this.delete(solutionsSpace, theory);
 		}
 		return resultPositive && resultNegative;
 	}
@@ -43,24 +43,26 @@ public class OperatorsController {
 		String solution = "";
 		for(int i=0; i<solutionsSpace.getAvailableSolutions().size();i++){
 			solution = solutionsSpace.getAvailableSolutions().get(i);
-			actionResult = this.addFact.execute(solution);
-			if(actionResult){
-				this.exampleController.generateMisclassifiedExamples();
-				Double solutionAccuracy = this.exampleController.computeAccuracy();
-				if(solutionAccuracy > bestAccuracy){
-					wasImproved = Boolean.TRUE;
-					bestAccuracy = solutionAccuracy;
-					bestSolution = solution;
-					if(bestAccuracy == 100.00){
-						break;
+			if(!theory.getSClauses().contains(solution)){
+				actionResult = this.addFact.execute(solution);
+				if(actionResult){
+					this.exampleController.generateMisclassifiedExamples();
+					Double solutionAccuracy = this.exampleController.computeAccuracy();
+					if(solutionAccuracy > bestAccuracy){
+						wasImproved = Boolean.TRUE;
+						bestAccuracy = solutionAccuracy;
+						bestSolution = solution;
+						if(bestAccuracy == 100.00){
+							break;
+						}
 					}
+					actionResult = this.deleteFact.execute(solution);
+					if(!actionResult){
+						throw new RuntimeException("Error undoing add clause.");
+					}
+				}else{
+					throw new RuntimeException("Error adding new clause.");
 				}
-				actionResult = this.deleteFact.execute(solution);
-				if(!actionResult){
-					throw new RuntimeException("Error undoing add clause.");
-				}
-			}else{
-				throw new RuntimeException("Error adding new clause.");
 			}
 		}
 		if(wasImproved){
@@ -101,22 +103,55 @@ public class OperatorsController {
 	}
 
 	private Boolean delete(SolutionsSpace solutionsSpace, Theory theory) throws Exception {
-		Double theoryAccuracy = theory.getAccuracy();
-		Double accuracy = null;
+		String bestSolution = "";
+		Double bestAccuracy = theory.getAccuracy();
 		Boolean actionResult = Boolean.FALSE;
 		Boolean wasImproved = Boolean.FALSE;
-		for(String clause:theory.getSClauses()){
-			for(String functor:solutionsSpace.getFunctors()){
-				if(clause.replaceAll(" ", "").startsWith(functor)){
-					this.deleteFact.execute(clause.substring(0, clause.length()-1));
-					this.exampleController.generateMisclassifiedExamples();
-					accuracy = this.exampleController.computeAccuracy();
-					if(accuracy > theoryAccuracy){
-							
+		String clause = "";
+		for(int i = 0; i < theory.getSClauses().size(); i++){
+			clause = theory.getSClauses().get(i);
+			for(int j = 0; j < solutionsSpace.getFunctors().size(); j++){
+				if(clause.replaceAll(" ", "").startsWith(solutionsSpace.getFunctors().get(j))){
+					actionResult = this.deleteFact.execute(clause.substring(0, clause.length()-1));
+					if(actionResult){
+						this.exampleController.generateMisclassifiedExamples();
+						Double solutionAccuracy = this.exampleController.computeAccuracy();
+						if(solutionAccuracy > bestAccuracy){
+							wasImproved = Boolean.TRUE;
+							bestAccuracy = solutionAccuracy;
+							bestSolution = clause;
+							if(bestAccuracy == 100.00){
+								break;
+							}
+						}
+						actionResult = this.addFact.execute(clause.substring(0, clause.length()-1));
+						if(!actionResult){
+							throw new RuntimeException("Error undoing delete clause.");
+						}
+					}else{
+						throw new RuntimeException("Error adding new clause.");
 					}
 				}
 			}
 		}
+		if(wasImproved){
+			Theory newTheory = new Theory();
+			newTheory.setAccuracy(bestAccuracy);
+			newTheory.setLoaded(wasImproved);
+			for(String sClause:theory.getSClauses()){
+				if(!sClause.replaceAll(" ", "").equals(bestSolution)){
+					newTheory.addSClause(sClause);
+				}
+			}
+			Clause c = this.theoryController.createClause(bestSolution);
+			for(Clause cls:theory.getClauses()){
+				if(!cls.equals(c)){
+					newTheory.addClause(cls);
+				}
+			}
+			this.theoryController.addTheory(newTheory);
+		}
+		this.addFact.execute(bestSolution);
 		return wasImproved;
 	}
 
