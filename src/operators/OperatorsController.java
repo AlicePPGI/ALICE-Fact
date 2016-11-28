@@ -23,14 +23,18 @@ public class OperatorsController {
 		return instance;
 	}
 	
-	public Boolean execute(SolutionsSpace solutionsSpace, Theory theory) throws Exception{
+	public Boolean execute(SolutionsSpace solutionsSpace) throws Exception{
 		Boolean resultPositive = Boolean.TRUE;
 		Boolean resultNegative = Boolean.TRUE;
 		if(this.exampleController.hasMisclassifiedPositiveExamples()){
+			Theory theory = this.theoryController.getBestTheory();
 			resultPositive = this.add(solutionsSpace, theory);
+			this.exampleController.generateMisclassifiedExamples();
 		}
 		if(this.exampleController.hasMisclassifiedNegativeExamples()){
+			Theory theory = this.theoryController.getBestTheory();
 			resultNegative = this.delete(solutionsSpace, theory);
+			this.exampleController.generateMisclassifiedExamples();
 		}
 		return resultPositive && resultNegative;
 	}
@@ -43,7 +47,7 @@ public class OperatorsController {
 		String solution = "";
 		for(int i=0; i<solutionsSpace.getAvailableSolutions().size();i++){
 			solution = solutionsSpace.getAvailableSolutions().get(i);
-			if(!theory.getSClauses().contains(solution)){
+			if(!theory.getSClauses().contains(solution+".")){
 				actionResult = this.addFact.execute(solution);
 				if(actionResult){
 					this.exampleController.generateMisclassifiedExamples();
@@ -119,7 +123,7 @@ public class OperatorsController {
 						if(solutionAccuracy > bestAccuracy){
 							wasImproved = Boolean.TRUE;
 							bestAccuracy = solutionAccuracy;
-							bestSolution = clause;
+							bestSolution = clause.substring(0, clause.length()-1);
 							if(bestAccuracy == 100.00){
 								break;
 							}
@@ -139,19 +143,41 @@ public class OperatorsController {
 			newTheory.setAccuracy(bestAccuracy);
 			newTheory.setLoaded(wasImproved);
 			for(String sClause:theory.getSClauses()){
-				if(!sClause.replaceAll(" ", "").equals(bestSolution)){
+				if(!sClause.replaceAll(" ", "").equals(bestSolution+".")){
 					newTheory.addSClause(sClause);
 				}
 			}
-			Clause c = this.theoryController.createClause(bestSolution);
+			Clause c = this.theoryController.createClause(bestSolution+".");
 			for(Clause cls:theory.getClauses()){
-				if(!cls.equals(c)){
+				if(!cls.getHead().getPredicate().getFunctor().equals(c.getHead().getPredicate().getFunctor())){
 					newTheory.addClause(cls);
+				}else{
+					if(cls.getHead().getPredicate().getAridity() != c.getHead().getPredicate().getAridity()){
+						newTheory.addClause(cls);
+					}else{
+						boolean achou = true;
+						for(int i = 1; i<=cls.getHead().getPredicate().getArguments().size(); i++){
+							if(achou){
+								achou = false;
+								for(int j = 1; j<=c.getHead().getPredicate().getArguments().size(); j++){
+									if(cls.getHead().getPredicate().getArguments().get(i).getName().equals(c.getHead().getPredicate().getArguments().get(j).getName())){
+										achou = true;
+										break;
+									}
+								}
+							}else{
+								break;
+							}
+						}
+						if(achou){
+							newTheory.addClause(cls);
+						}
+					}
 				}
 			}
 			this.theoryController.addTheory(newTheory);
 		}
-		this.addFact.execute(bestSolution);
+		this.deleteFact.execute(bestSolution);
 		return wasImproved;
 	}
 

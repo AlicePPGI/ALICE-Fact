@@ -11,6 +11,9 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.jpl7.Query;
+
 import predicate.Predicate;
 import predicate.PredicateController;
 
@@ -20,10 +23,12 @@ import predicate.PredicateController;
  */
 public class TheoryController {
 
+	private static final Logger LOGGER = Logger.getLogger(TheoryController.class); 
 	private static final TheoryController instance = new TheoryController();
 
 	private PredicateController predicateController = PredicateController.getInstance();
 	private List<Theory> theories = new ArrayList<Theory>();
+	private String dynamicDatabaseName = "dynamicDatabase.pl";
 	
 	private TheoryController(){
 		
@@ -44,9 +49,6 @@ public class TheoryController {
 	public Theory createTheory(String fileName, List<String> dynamicPredicates) throws Exception{
 		Theory theory = new Theory();
 		theory.setFileName(fileName);
-		for(String dynamicPredicate:dynamicPredicates){
-			theory.addSClause(dynamicPredicate);
-		}
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		String line = br.readLine();
 		while (line != null) {
@@ -56,7 +58,7 @@ public class TheoryController {
 			line = br.readLine();
 		}
 		br.close();
-		theory.load();
+		theory.createDynamicDatabase(dynamicPredicates);
 		return theory;
 	}
 
@@ -103,32 +105,6 @@ public class TheoryController {
 		return main;
 	}
 
-/*	public Theory createTheory(Theory oldTheory, Example example, String revision, String theoryFileName) throws Exception{
-		Theory theory = new Theory();
-		if (example.getTypeOfExample().equals(TypeOfExample.POSITIVE)) {
-			System.out.println("Adding the revision: " + revision);
-			theory.getSClauses().addAll(oldTheory.getSClauses());
-			theory.addSClause(revision);
-			theory.sortSClauses();
-			this.saveTheory(theory, theoryFileName);
-			theory.loadNewClause(revision);
-		} else {
-			if (example.getTypeOfExample().equals(TypeOfExample.NEGATIVE)) {
-				System.out.println("Deleting the revision: " + revision);
-				for (String oldClause:oldTheory.getSClauses()) {
-					if (!oldClause.replaceAll(" ", "").equals(revision.replaceAll(" ", ""))) {
-						theory.addSClause(oldClause);
-					}
-				}
-				this.saveTheory(theory, theoryFileName);
-				theory.unloadClause(revision);
-			} else {
-				throw new RuntimeException();
-			}
-		}
-		return theory;
-	} */
-
 	public void addTheory(Theory theory){
 		this.theories.add(theory);
 	}
@@ -148,24 +124,49 @@ public class TheoryController {
 	public Theory getATheory(int index){
 		return this.theories.get(index);
 	}
-	
-	public void saveTheory(Theory theory, String theoryFileName) throws Exception{
-		File file = new File(theoryFileName);
-		if (!file.exists()) {
+
+	public Boolean loadDynamicDatabase(Theory theory, String sourceDir) throws Exception {
+		String databaseName = sourceDir+"/"+this.dynamicDatabaseName;
+		this.saveDynamicDatabase(theory, databaseName);
+		return Query.hasSolution("consult('" + databaseName + "')");
+	}
+
+	private void saveDynamicDatabase(Theory theory, String theoryFileName) throws Exception {
+		this.saveFile(theory.getDynamicDatabase(), theoryFileName);
+	}
+
+	public void saveTheory(Theory theory, String theoryFileName) throws Exception {
+		this.saveFile(theory.getSClauses(), theoryFileName);
+		theory.setFileName(theoryFileName);
+	}
+
+	private void saveFile(List<String> clauses, String fileName) throws Exception {
+		File file = new File(fileName);
+		if(!file.exists()){
 			file.createNewFile();
 		}
 		FileWriter fw = new FileWriter(file.getAbsoluteFile());
 		BufferedWriter bw = new BufferedWriter(fw);
-		for (String clause:theory.getSClauses()) {
+		for(String clause:clauses){
 			bw.write(clause+System.lineSeparator());
 		}
 		bw.close();
 		fw.close();
-		theory.setFileName(theoryFileName);
 	}
 
 	public Boolean isLoad(Theory theory){
 		return theory.wasLoaded();
 	}
-	
+
+	public void deleteDynamicDataase(String sourceDir) {
+		File file = new File(sourceDir+"/"+this.dynamicDatabaseName);
+		if(file.exists()){
+			if(file.delete()){
+				LOGGER.info("Temporary dynamic database was deleted.");
+			}else{
+				LOGGER.info("Temporary dynamic database wasn't deleted.");
+			}
+		}
+	}
+
 }

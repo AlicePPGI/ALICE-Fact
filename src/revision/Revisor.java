@@ -42,6 +42,7 @@ public class Revisor {
 	public void execute() throws Exception{
 		SolutionsSpace solutionsSpace = this.solutionsSpaceController.getSolutionsSpace(this.sourceDir+"/"+this.classesFileName, this.sourceDir+"/"+this.alignmentFunctorFileName);
 		Theory theory = this.createTheory(solutionsSpace.getDynamicPredicates());
+		theory.setLoaded(this.theoryController.loadDynamicDatabase(theory, this.sourceDir));
 		int MEIndex = 0;
 		int maximumNumberOfAttempts = 100;
 		boolean wasLoaded = this.theoryController.isLoad(theory);
@@ -51,7 +52,7 @@ public class Revisor {
 			theory.setAccuracy(this.exampleController.computeAccuracy());
 			boolean loop = this.exampleController.getMisclassifiedExamples().size() > 0;
 			while(loop){
-				Boolean wasImproved = this.operatorsController.execute(solutionsSpace, theory);
+				Boolean wasImproved = this.operatorsController.execute(solutionsSpace);
 				if(wasImproved){
 					theory = this.theoryController.getBestTheory();
 					wasLoaded = this.theoryController.isLoad(theory);
@@ -72,6 +73,7 @@ public class Revisor {
 				}
 				maximumNumberOfAttempts--;
 			}
+			this.theoryController.deleteDynamicDataase(this.sourceDir);
 		}else{
 			throw new RuntimeException("Invalid initial Theory!!!");
 		}

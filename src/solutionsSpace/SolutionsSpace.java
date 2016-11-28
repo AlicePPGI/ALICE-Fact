@@ -86,7 +86,7 @@ public class SolutionsSpace {
 		String line = br.readLine();
 		while(line != null){
 			if(!line.equals("")){
-				this.dynamicPredicates.add(":- dynamic "+ line + "/2.");
+				this.dynamicPredicates.add(":- dynamic "+ line.trim() + "/2.");
 				this.functors.add(line);
 			}
 			line = br.readLine();

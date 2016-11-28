@@ -1,9 +1,11 @@
 package operators;
 
+import org.apache.log4j.Logger;
 import org.jpl7.Query;
 
 public class AddFact {
 
+	private static final Logger LOGGER = Logger.getLogger(AddFact.class);
 	private static final AddFact instance = new AddFact();
 	
 	private AddFact() {
@@ -15,7 +17,7 @@ public class AddFact {
 	}
 	
 	public Boolean execute(String solution) {
-		System.out.println("Adding clause: "+solution);
+		LOGGER.info("Adding clause: "+solution);
 		String assertSolution = "asserta("+solution+")";
 		return Query.hasSolution(assertSolution); 
 	}

@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.jpl7.Query;
 
 import predicate.Predicate;
@@ -19,6 +20,7 @@ import predicate.PredicateController;
  */
 public class ExampleController {
 
+	private static final Logger LOGGER = Logger.getLogger(ExampleController.class);
 	private static final ExampleController instance = new ExampleController();
 	
 	private PredicateController predicateController = PredicateController.getInstance();
@@ -119,15 +121,15 @@ public class ExampleController {
 			totalNumberOfExamplesMisclassified = this.misclassifiedExamples.size();
 			totalNumberOfExamples = this.setOfExamples.getExamples().size();
 			accuracy = ((totalNumberOfExamples - totalNumberOfExamplesMisclassified)/totalNumberOfExamples) * 100.00;
-			System.out.printf("Theory's accuracy: %.2f%s%n%n", accuracy,"%");
+			LOGGER.info("Theory's accuracy: "+accuracy+"%");
 	 		return accuracy;
 		} else {
 			if(this.setOfExamples.getExamples().size() > 0){
 				accuracy = 100.00;
-				System.out.printf("Theory's accuracy: %.2f%s%n%n", accuracy,"%");
+				LOGGER.info("Theory's accuracy: "+accuracy+"%");
 				return accuracy;
 			}else{
-				System.out.println("There aren't examples");
+				LOGGER.info("There aren't examples");
 				return null;
 			}
 		}

@@ -3,6 +3,8 @@
  */
 package factRevision;
 
+import org.apache.log4j.Logger;
+
 import revision.Revisor;
 
 /**
@@ -11,6 +13,7 @@ import revision.Revisor;
  */
 public class FactRevision {
 
+	private final static Logger LOGGER = Logger.getLogger(FactRevision.class);
 	/**
 	 * @param args
 	 */
@@ -20,9 +23,9 @@ public class FactRevision {
 //		Revisor revisor = new Revisor(args[0], args[1], args[2], args[3], args[4);
 		try {
 			revisor.execute();
-			System.out.println("Program executed successfuly!!!");
+			LOGGER.info("Program executed successfuly!!!");
 		}catch(Exception e){
-			e.printStackTrace();
+			LOGGER.error("Ocorreu o seguinte erro: ", e);
 		}
 	}
 

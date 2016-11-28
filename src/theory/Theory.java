@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jpl7.Query;
-
 /**
  * @author wsantos
  *
@@ -20,6 +18,7 @@ public class Theory {
 	private String fileName = null;
 	private Boolean loaded = null;
 	private List<Clause> clauses = new ArrayList<Clause>();
+	private List<String> dynamicDatabase = new ArrayList<String>();
 	
 	public List<String> getSClauses() {
 		return this.sClauses;
@@ -35,6 +34,14 @@ public class Theory {
 
 	public void setAccuracy(Double accuracy){
 		this.accuracy = accuracy;
+	}
+
+	public List<String> getDynamicDatabase() {
+		return this.dynamicDatabase;
+	}
+
+	public void setDynamicDatabase(List<String> dynamicDatabase) {
+		this.dynamicDatabase = dynamicDatabase;
 	}
 
 	public void addSClause(String sClause) {
@@ -76,10 +83,15 @@ public class Theory {
 		Collections.sort(this.sClauses);
 	}
 	
-	public void load() {
-		System.out.println("Loading the theory.");
-		String t = "consult('" + this.getFileName() + "')";
-		this.loaded = Query.hasSolution(t);
+	public void createDynamicDatabase(List<String> dynamicPredicates) {
+		this.dynamicDatabase.addAll(dynamicPredicates);
+		for(Clause clause:this.clauses){
+			String dynamic = ":- dynamic " + clause.getHead().getPredicate().getFunctor().trim()+"/"+clause.getHead().getPredicate().getAridity()+".";
+			if(!this.dynamicDatabase.contains(dynamic)){
+				this.dynamicDatabase.add(dynamic);
+			}
+		}
+		this.dynamicDatabase.addAll(this.sClauses);
 	}
 
 	public void setLoaded(Boolean loaded){
