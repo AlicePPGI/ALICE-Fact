@@ -113,6 +113,26 @@ public class ExampleController {
 		return this.misclassifiedExamples;
 	}
 
+	public List<Example> getMisclassifiedNegativeExamples() {
+		List<Example> misclassifiedNegativeExamples = new ArrayList<Example>();
+		for(Example example:this.misclassifiedExamples){
+			if(example.getTypeOfExample().equals(TypeOfExample.NEGATIVE)){
+				misclassifiedNegativeExamples.add(example);
+			}
+		}
+		return misclassifiedNegativeExamples;
+	}
+
+	public List<Example> getMisclassifiedPositiveExamples() {
+		List<Example> misclassifiedPositiveExamples = new ArrayList<Example>();
+		for(Example example:this.misclassifiedExamples){
+			if(example.getTypeOfExample().equals(TypeOfExample.POSITIVE)){
+				misclassifiedPositiveExamples.add(example);
+			}
+		}
+		return misclassifiedPositiveExamples;
+	}
+
 	public Double computeAccuracy(){
 		double totalNumberOfExamples = 0.00;
 		double totalNumberOfExamplesMisclassified = 0.00;
